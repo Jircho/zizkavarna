@@ -1,0 +1,2179 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Žižkavárna — Váš obývák v srdci Žižkova</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   ROOT & RESET
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream:      #FAF6F0;
+  --espresso:   #2C1A0E;
+  --terra:      #C4622D;
+  --sage:       #8A9E7B;
+  --ink:        #1C1C1A;
+  --muted:      #7A6A5A;
+  --warm-white: #FDF9F4;
+  --light-terra: #E8896A;
+  --pale-sage:  #D4DFD0;
+
+  --serif: 'Playfair Display', Georgia, serif;
+  --sans:  'DM Sans', system-ui, sans-serif;
+  --mono:  'DM Mono', monospace;
+
+  --radius: 3px;
+  --shadow: 0 4px 24px rgba(44,26,14,0.10);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--cream);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+/* Grain texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: .025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+/* Scroll-triggered fade-up */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity .65s ease, transform .65s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+#nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  padding: 0 40px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background .3s, box-shadow .3s;
+}
+#nav.scrolled {
+  background: rgba(250,246,240,0.93);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 0 rgba(44,26,14,0.12);
+}
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--espresso);
+  letter-spacing: -0.02em;
+}
+.nav-logo svg {
+  flex-shrink: 0;
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  list-style: none;
+}
+.nav-links a {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color .2s;
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0; right: 100%;
+  height: 1px;
+  background: var(--terra);
+  transition: right .25s ease;
+}
+.nav-links a:hover { color: var(--espresso); }
+.nav-links a:hover::after { right: 0; }
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.lang-toggle {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid rgba(44,26,14,0.2);
+  border-radius: 2px;
+  padding: 5px 11px;
+  transition: all .2s;
+}
+.lang-toggle:hover {
+  background: var(--espresso);
+  color: var(--cream);
+  border-color: var(--espresso);
+}
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: 4px;
+}
+.hamburger span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--espresso);
+  transition: all .25s;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 68px; left: 0; right: 0;
+  background: var(--warm-white);
+  border-bottom: 2px solid var(--espresso);
+  padding: 32px 40px 40px;
+  z-index: 999;
+  flex-direction: column;
+  gap: 0;
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--espresso);
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(44,26,14,0.1);
+  transition: color .2s;
+}
+.mobile-menu a:hover { color: var(--terra); }
+
+/* ============================================================
+   HERO
+   ============================================================ */
+#hero {
+  min-height: 100vh;
+  background: var(--espresso);
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 100px 80px 80px;
+}
+
+/* Large decorative background text */
+.hero-bg-text {
+  position: absolute;
+  bottom: -60px; right: -40px;
+  font-family: var(--serif);
+  font-size: clamp(160px, 22vw, 340px);
+  font-weight: 900;
+  font-style: italic;
+  color: rgba(196,98,45,0.08);
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  letter-spacing: -0.04em;
+}
+
+/* Geometric accent shapes */
+.hero-shape-1 {
+  position: absolute;
+  top: 80px; right: 60px;
+  width: 280px; height: 280px;
+  border-radius: 50%;
+  border: 1px solid rgba(196,98,45,0.2);
+}
+.hero-shape-2 {
+  position: absolute;
+  top: 160px; right: 140px;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  background: rgba(196,98,45,0.06);
+}
+.hero-shape-3 {
+  position: absolute;
+  bottom: 100px; left: 40%;
+  width: 3px; height: 120px;
+  background: rgba(196,98,45,0.3);
+}
+
+.hero-left {
+  position: relative;
+  z-index: 2;
+  max-width: 600px;
+}
+
+.hero-overline {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--terra);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.hero-overline::before {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 1px;
+  background: var(--terra);
+}
+
+.hero-headline {
+  font-family: var(--serif);
+  font-size: clamp(2.8rem, 5vw, 5.2rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--cream);
+  margin-bottom: 28px;
+}
+.hero-headline em {
+  font-style: italic;
+  color: var(--terra);
+  display: block;
+}
+
+.hero-sub {
+  font-size: 0.95rem;
+  color: rgba(250,246,240,0.6);
+  max-width: 380px;
+  margin-bottom: 44px;
+  line-height: 1.75;
+}
+
+.hero-ctas {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.btn-primary {
+  background: var(--terra);
+  color: var(--cream);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 14px 28px;
+  border-radius: var(--radius);
+  transition: background .2s, transform .15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-primary:hover {
+  background: var(--light-terra);
+  transform: translateY(-1px);
+}
+.btn-outline {
+  border: 1px solid rgba(250,246,240,0.3);
+  color: rgba(250,246,240,0.75);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 14px 28px;
+  border-radius: var(--radius);
+  transition: all .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-outline:hover {
+  border-color: rgba(250,246,240,0.7);
+  color: var(--cream);
+}
+
+/* Hero right — coffee cup illustration */
+.hero-right {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-cup-wrap {
+  position: relative;
+  animation: floatCup 5s ease-in-out infinite;
+}
+@keyframes floatCup {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-16px); }
+}
+.steam-line {
+  animation: steam 2.5s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+.steam-line:nth-child(2) { animation-delay: 0.4s; }
+.steam-line:nth-child(3) { animation-delay: 0.8s; }
+@keyframes steam {
+  0%   { opacity: 0; transform: translateY(0) scaleY(1); }
+  50%  { opacity: 0.7; }
+  100% { opacity: 0; transform: translateY(-28px) scaleY(1.5); }
+}
+
+/* Rating badge on hero */
+.hero-rating {
+  position: absolute;
+  bottom: -40px;
+  right: -20px;
+  background: var(--terra);
+  color: var(--cream);
+  border-radius: 100px;
+  padding: 10px 18px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(196,98,45,0.4);
+}
+
+/* Scroll indicator */
+.scroll-cue {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: bounce 2s ease-in-out infinite;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(6px); }
+}
+.scroll-cue span {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(250,246,240,0.35);
+}
+
+/* ============================================================
+   HIGHLIGHTS BAR
+   ============================================================ */
+#highlights {
+  background: var(--espresso);
+  border-top: 1px solid rgba(196,98,45,0.25);
+  padding: 0;
+}
+.highlights-inner {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+.highlight-item {
+  padding: 22px 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-right: 1px solid rgba(250,246,240,0.06);
+  transition: background .2s;
+}
+.highlight-item:last-child { border-right: none; }
+.highlight-item:hover { background: rgba(196,98,45,0.1); }
+.hl-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+.hl-text strong {
+  display: block;
+  font-family: var(--serif);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--cream);
+  line-height: 1.3;
+}
+.hl-text span {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.07em;
+  color: rgba(250,246,240,0.45);
+}
+
+/* ============================================================
+   SECTION SHARED STYLES
+   ============================================================ */
+.section-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--terra);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--terra);
+}
+
+.section-title {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: var(--espresso);
+  margin-bottom: 24px;
+}
+
+/* Wavy SVG divider */
+.wave-divider {
+  display: block;
+  width: 100%;
+  line-height: 0;
+  overflow: hidden;
+}
+
+/* ============================================================
+   MENU SECTION
+   ============================================================ */
+#menu {
+  padding: 100px 80px;
+  background: var(--warm-white);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Large background letter */
+#menu::before {
+  content: 'MENU';
+  position: absolute;
+  top: 40px; right: -20px;
+  font-family: var(--serif);
+  font-size: clamp(80px, 14vw, 200px);
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  color: rgba(44,26,14,0.03);
+  pointer-events: none;
+  line-height: 1;
+}
+
+.menu-header {
+  max-width: 560px;
+  margin-bottom: 56px;
+}
+
+/* Tabs */
+.menu-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 48px;
+  border-bottom: 2px solid rgba(44,26,14,0.1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.menu-tabs::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 12px 24px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  white-space: nowrap;
+  transition: all .2s;
+  flex-shrink: 0;
+}
+.tab-btn:hover { color: var(--espresso); }
+.tab-btn.active {
+  color: var(--espresso);
+  border-bottom-color: var(--terra);
+  font-weight: 500;
+}
+
+.tab-panel {
+  display: none;
+  animation: fadeTab .3s ease;
+}
+.tab-panel.active { display: block; }
+@keyframes fadeTab {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2px;
+}
+
+.menu-item {
+  background: var(--cream);
+  padding: 24px 28px;
+  position: relative;
+  transition: background .2s;
+  border: 1px solid transparent;
+}
+.menu-item:hover {
+  background: white;
+  border-color: rgba(44,26,14,0.08);
+  box-shadow: var(--shadow);
+  z-index: 1;
+}
+
+.menu-item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.menu-item-name {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--espresso);
+  line-height: 1.3;
+}
+.menu-item-price {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--terra);
+  white-space: nowrap;
+  margin-top: 2px;
+  font-weight: 500;
+}
+.menu-item-desc {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.badge-fav {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--terra);
+  color: var(--cream);
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 2px;
+  margin-top: 10px;
+}
+.badge-gf {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--pale-sage);
+  color: var(--sage);
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 2px;
+  margin-top: 10px;
+  margin-left: 4px;
+}
+
+/* Walk-in note */
+.walk-in-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: var(--espresso);
+  color: var(--cream);
+  padding: 20px 24px;
+  margin-top: 40px;
+  border-radius: var(--radius);
+  max-width: 540px;
+  transform: rotate(-0.5deg);
+}
+.walk-in-note-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.walk-in-note strong {
+  font-family: var(--serif);
+  font-size: 1rem;
+  display: block;
+  margin-bottom: 4px;
+}
+.walk-in-note span {
+  font-size: 0.82rem;
+  color: rgba(250,246,240,0.65);
+  line-height: 1.6;
+}
+
+/* ============================================================
+   ABOUT SECTION
+   ============================================================ */
+#about {
+  padding: 120px 80px;
+  background: var(--cream);
+  position: relative;
+  overflow: hidden;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  max-width: 1200px;
+}
+
+.about-text .section-title { margin-bottom: 28px; }
+.about-text p {
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.8;
+  margin-bottom: 20px;
+}
+.about-text p strong {
+  color: var(--espresso);
+  font-weight: 500;
+}
+
+.about-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 32px;
+}
+.about-tag {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid rgba(44,26,14,0.2);
+  color: var(--muted);
+  padding: 5px 12px;
+  border-radius: 2px;
+}
+
+/* Decorative right side */
+.about-visual {
+  position: relative;
+  height: 500px;
+}
+.about-card {
+  position: absolute;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 8px 40px rgba(44,26,14,0.12);
+  overflow: hidden;
+}
+.about-card-main {
+  top: 0; left: 0; right: 0;
+  height: 320px;
+  background: linear-gradient(135deg, var(--espresso) 0%, #3d2614 50%, #1a0f07 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 32px;
+}
+.about-card-main .big-num {
+  font-family: var(--serif);
+  font-size: 5rem;
+  font-weight: 900;
+  color: rgba(196,98,45,0.25);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.about-card-main .card-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(250,246,240,0.4);
+  margin-bottom: 6px;
+}
+.about-card-main .card-val {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--cream);
+  line-height: 1.3;
+}
+
+.about-card-small-1 {
+  bottom: 30px; right: 0;
+  width: 180px; height: 100px;
+  background: var(--terra);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px;
+}
+.about-card-small-1 .card-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(250,246,240,0.6);
+  margin-bottom: 4px;
+}
+.about-card-small-1 .card-val {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--cream);
+  line-height: 1.3;
+}
+
+.about-card-small-2 {
+  bottom: 30px; left: 10px;
+  width: 160px; height: 80px;
+  background: var(--pale-sage);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 18px;
+}
+.about-card-small-2 .card-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--sage);
+  margin-bottom: 4px;
+}
+.about-card-small-2 .card-val {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--espresso);
+}
+
+/* Large decorative text */
+#about::after {
+  content: 'ŽIŽKOV';
+  position: absolute;
+  top: 50%;
+  right: -60px;
+  transform: translateY(-50%) rotate(90deg);
+  transform-origin: right center;
+  font-family: var(--serif);
+  font-size: clamp(60px,10vw,140px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: rgba(44,26,14,0.03);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   OPENING HOURS
+   ============================================================ */
+#hours {
+  padding: 100px 80px;
+  background: var(--espresso);
+  position: relative;
+  overflow: hidden;
+}
+#hours::before {
+  content: '';
+  position: absolute;
+  top: -100px; right: -100px;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  border: 1px solid rgba(196,98,45,0.12);
+  pointer-events: none;
+}
+
+.hours-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+  max-width: 1000px;
+}
+
+.hours-left .section-label { color: var(--terra); }
+.hours-left .section-title { color: var(--cream); }
+
+#open-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border-radius: 100px;
+  margin-bottom: 40px;
+  font-weight: 500;
+}
+#open-status.open {
+  background: rgba(138,158,123,0.2);
+  color: var(--sage);
+  border: 1px solid rgba(138,158,123,0.4);
+}
+#open-status.closed {
+  background: rgba(196,98,45,0.15);
+  color: var(--light-terra);
+  border: 1px solid rgba(196,98,45,0.3);
+}
+#open-status::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  display: block;
+}
+#open-status.open::before  { background: var(--sage); }
+#open-status.closed::before { background: var(--light-terra); }
+
+.hours-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.hours-table tr {
+  border-bottom: 1px solid rgba(250,246,240,0.06);
+  transition: background .2s;
+}
+.hours-table tr:hover { background: rgba(250,246,240,0.04); }
+.hours-table tr.today {
+  background: rgba(196,98,45,0.12);
+}
+.hours-table td {
+  padding: 14px 16px;
+  font-size: 0.88rem;
+}
+.hours-table td:first-child {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: rgba(250,246,240,0.9);
+}
+.hours-table td:last-child {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--terra);
+  text-align: right;
+  letter-spacing: 0.04em;
+}
+.hours-table tr.today td:first-child { color: var(--cream); }
+.today-marker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.today-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--terra);
+  display: inline-block;
+}
+
+.hours-policies {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.policy-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.policy-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.policy-text strong {
+  display: block;
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--cream);
+  margin-bottom: 2px;
+}
+.policy-text span {
+  font-size: 0.8rem;
+  color: rgba(250,246,240,0.45);
+  line-height: 1.6;
+}
+
+/* ============================================================
+   REVIEWS
+   ============================================================ */
+#reviews {
+  padding: 100px 80px;
+  background: var(--warm-white);
+  overflow: hidden;
+}
+
+.reviews-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 48px;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.google-rating {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.rating-score {
+  font-family: var(--serif);
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--espresso);
+  line-height: 1;
+}
+.rating-detail {
+  display: flex;
+  flex-direction: column;
+}
+.stars { color: #F4A81D; font-size: 1.1rem; letter-spacing: 2px; }
+.rating-count {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.carousel-controls {
+  display: flex;
+  gap: 8px;
+}
+.carousel-btn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(44,26,14,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--espresso);
+  transition: all .2s;
+  font-size: 1.1rem;
+}
+.carousel-btn:hover {
+  background: var(--espresso);
+  color: var(--cream);
+  border-color: var(--espresso);
+}
+
+.carousel-track-outer {
+  overflow: hidden;
+  position: relative;
+}
+.carousel-track {
+  display: flex;
+  gap: 20px;
+  transition: transform .45s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+
+.review-card {
+  background: white;
+  border: 1px solid rgba(44,26,14,0.06);
+  border-radius: 4px;
+  padding: 32px;
+  min-width: 340px;
+  max-width: 340px;
+  flex-shrink: 0;
+  position: relative;
+}
+.review-quote-mark {
+  font-family: var(--serif);
+  font-size: 4rem;
+  font-weight: 900;
+  color: rgba(196,98,45,0.12);
+  line-height: 1;
+  margin-bottom: -12px;
+  display: block;
+}
+.review-text {
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--espresso);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+.review-stars { color: #F4A81D; font-size: 0.85rem; letter-spacing: 2px; margin-bottom: 14px; }
+.review-author {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ============================================================
+   FIND US SECTION
+   ============================================================ */
+#findus {
+  padding: 100px 80px;
+  background: var(--cream);
+}
+
+.findus-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 60px;
+  align-items: start;
+  max-width: 1100px;
+}
+
+.contact-block {
+  margin-bottom: 36px;
+}
+.contact-block .label {
+  font-family: var(--mono);
+  font-size: 0.63rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--terra);
+  margin-bottom: 8px;
+}
+.contact-block .value {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--espresso);
+  line-height: 1.5;
+}
+.contact-block .value a { color: var(--espresso); transition: color .2s; }
+.contact-block .value a:hover { color: var(--terra); }
+
+.transport-note {
+  background: rgba(138,158,123,0.15);
+  border-left: 3px solid var(--sage);
+  padding: 16px 20px;
+  border-radius: 0 4px 4px 0;
+  margin-top: 24px;
+}
+.transport-note p {
+  font-size: 0.83rem;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.social-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+}
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(44,26,14,0.15);
+  color: var(--espresso);
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border-radius: 2px;
+  transition: all .2s;
+}
+.social-link:hover {
+  background: var(--espresso);
+  color: var(--cream);
+  border-color: var(--espresso);
+}
+
+.map-container {
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(44,26,14,0.12);
+  position: relative;
+}
+.map-container iframe {
+  width: 100%;
+  height: 420px;
+  border: none;
+  display: block;
+  filter: sepia(20%) saturate(80%);
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer {
+  background: var(--espresso);
+  padding: 64px 80px 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Coffee ring illustration */
+footer::before {
+  content: '';
+  position: absolute;
+  bottom: -60px; right: 80px;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  border: 22px solid rgba(196,98,45,0.06);
+  pointer-events: none;
+}
+footer::after {
+  content: '';
+  position: absolute;
+  bottom: -30px; right: 130px;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  border: 12px solid rgba(196,98,45,0.06);
+  pointer-events: none;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1.5fr;
+  gap: 60px;
+  margin-bottom: 48px;
+}
+
+.footer-brand .nav-logo {
+  color: var(--cream);
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+}
+.footer-tagline {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.9rem;
+  color: rgba(250,246,240,0.45);
+  max-width: 280px;
+  line-height: 1.7;
+}
+
+.footer-col-title {
+  font-family: var(--mono);
+  font-size: 0.63rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(250,246,240,0.35);
+  margin-bottom: 20px;
+}
+.footer-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.footer-links a {
+  font-size: 0.88rem;
+  color: rgba(250,246,240,0.6);
+  transition: color .2s;
+}
+.footer-links a:hover { color: var(--cream); }
+
+.footer-contact-item {
+  margin-bottom: 14px;
+}
+.footer-contact-item .lbl {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(250,246,240,0.3);
+  margin-bottom: 2px;
+}
+.footer-contact-item .val {
+  font-size: 0.88rem;
+  color: rgba(250,246,240,0.7);
+  line-height: 1.5;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(250,246,240,0.07);
+  padding-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.footer-copy {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: rgba(250,246,240,0.25);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1024px) {
+  #hero { grid-template-columns: 1fr; padding: 100px 48px 80px; }
+  .hero-right { display: none; }
+  .hero-bg-text { font-size: clamp(100px, 20vw, 200px); }
+  .about-grid, .hours-grid, .findus-grid { grid-template-columns: 1fr; gap: 48px; }
+  .about-visual { height: 280px; }
+  .about-card-main { height: 220px; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  #menu, #about, #hours, #reviews, #findus { padding: 80px 48px; }
+  footer { padding: 56px 48px 40px; }
+}
+
+@media (max-width: 768px) {
+  #nav { padding: 0 24px; }
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+
+  #hero { padding: 90px 24px 80px; }
+  .hero-headline { font-size: 2.6rem; }
+
+  .highlights-inner { grid-template-columns: 1fr 1fr; }
+  .highlight-item { border-bottom: 1px solid rgba(250,246,240,0.06); }
+  .highlight-item:nth-child(odd) { border-right: 1px solid rgba(250,246,240,0.06); }
+
+  #menu, #about, #hours, #reviews, #findus { padding: 64px 24px; }
+  footer { padding: 48px 24px 32px; }
+  .footer-grid { grid-template-columns: 1fr; gap: 36px; }
+
+  .review-card { min-width: 300px; max-width: 300px; }
+  .reviews-header { flex-direction: column; align-items: flex-start; }
+
+  .about-visual { display: none; }
+}
+
+@media (max-width: 480px) {
+  .hero-ctas { flex-direction: column; }
+  .btn-primary, .btn-outline { justify-content: center; }
+  .highlights-inner { grid-template-columns: 1fr; }
+  .highlight-item { border-right: none; border-bottom: 1px solid rgba(250,246,240,0.06); }
+  .menu-grid { grid-template-columns: 1fr; }
+  .map-container iframe { height: 300px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAVIGATION
+     ============================================================ -->
+<nav id="nav">
+  <a href="#" class="nav-logo" aria-label="Žižkavárna homepage">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M6 8h14a1 1 0 0 1 1 1v8a7 7 0 0 1-14 0V9a1 1 0 0 1 1-1z" stroke="#C4622D" stroke-width="1.5" fill="none"/>
+      <path d="M20 11h2a2 2 0 0 1 0 4h-2" stroke="#C4622D" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <line x1="9" y1="22" x2="5" y2="26" stroke="#C4622D" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="17" y1="22" x2="21" y2="26" stroke="#C4622D" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    Žižkavárna
+  </a>
+  <ul class="nav-links">
+    <li><a href="#hero"    data-cs="Domů"         data-en="Home">Domů</a></li>
+    <li><a href="#menu"    data-cs="Menu"          data-en="Menu">Menu</a></li>
+    <li><a href="#about"   data-cs="O nás"         data-en="About">O nás</a></li>
+    <li><a href="#hours"   data-cs="Otevírací doba" data-en="Opening Hours">Otevírací doba</a></li>
+    <li><a href="#findus"  data-cs="Jak nás najít" data-en="Find Us">Jak nás najít</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="lang-toggle" id="langToggle" aria-label="Switch language">🇬🇧 EN</button>
+    <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile menu -->
+<div class="mobile-menu" id="mobileMenu" role="navigation">
+  <a href="#hero"   onclick="closeMobile()" data-cs="Domů"          data-en="Home">Domů</a>
+  <a href="#menu"   onclick="closeMobile()" data-cs="Menu"           data-en="Menu">Menu</a>
+  <a href="#about"  onclick="closeMobile()" data-cs="O nás"          data-en="About">O nás</a>
+  <a href="#hours"  onclick="closeMobile()" data-cs="Otevírací doba"  data-en="Opening Hours">Otevírací doba</a>
+  <a href="#findus" onclick="closeMobile()" data-cs="Jak nás najít"  data-en="Find Us">Jak nás najít</a>
+</div>
+
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section id="hero" aria-label="Hero">
+  <div class="hero-shape-1" aria-hidden="true"></div>
+  <div class="hero-shape-2" aria-hidden="true"></div>
+  <div class="hero-shape-3" aria-hidden="true"></div>
+  <div class="hero-bg-text" aria-hidden="true">Žižkov</div>
+
+  <div class="hero-left">
+    <div class="hero-overline">
+      <span data-cs="Kavárna · Praha 3 · Žižkov" data-en="Café · Praha 3 · Žižkov">Kavárna · Praha 3 · Žižkov</span>
+    </div>
+    <h1 class="hero-headline">
+      <span data-cs="Váš obývák" data-en="Your living room">Váš obývák</span>
+      <em data-cs="v srdci Žižkova" data-en="in the heart of Žižkov">v srdci Žižkova</em>
+    </h1>
+    <p class="hero-sub" data-cs="Snídaně a brunch každý den do 14:00. Káva od Mamacoffee. Vinohradská 11 čepovaná. Domácí dorty. A teplo, které pocítíte hned u dveří." data-en="Breakfast & brunch daily until 14:00. Coffee from Mamacoffee. Vinohradská 11 on tap. Homemade cakes. And a warmth you'll feel the moment you walk in.">
+      Snídaně a brunch každý den do 14:00. Káva od Mamacoffee. Vinohradská 11 čepovaná. Domácí dorty. A teplo, které pocítíte hned u dveří.
+    </p>
+    <div class="hero-ctas">
+      <a href="#menu" class="btn-primary">
+        <span data-cs="Prohlédnout menu" data-en="View Menu">Prohlédnout menu</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="#findus" class="btn-outline">
+        <span data-cs="Najít nás" data-en="Find Us">Najít nás</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1a4.5 4.5 0 0 1 4.5 4.5c0 3-4.5 7.5-4.5 7.5S2.5 8.5 2.5 5.5A4.5 4.5 0 0 1 7 1z" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="5.5" r="1.5" stroke="currentColor" stroke-width="1.5"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-right" aria-hidden="true">
+    <div class="hero-cup-wrap">
+      <svg width="280" height="300" viewBox="0 0 280 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Steam -->
+        <path class="steam-line" d="M110 60 Q105 45 110 30 Q115 15 110 0" stroke="rgba(250,246,240,0.35)" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path class="steam-line" d="M140 55 Q135 38 140 24 Q145 10 140 -5" stroke="rgba(250,246,240,0.35)" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path class="steam-line" d="M170 58 Q165 43 170 28 Q175 13 170 -2" stroke="rgba(250,246,240,0.35)" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <!-- Saucer -->
+        <ellipse cx="140" cy="240" rx="90" ry="18" fill="#3d2614"/>
+        <ellipse cx="140" cy="236" rx="82" ry="14" fill="#4a2e18"/>
+        <!-- Cup body -->
+        <path d="M80 130 Q75 230 140 235 Q205 230 200 130 Z" fill="#3d2614"/>
+        <path d="M80 130 Q75 190 140 200 Q205 190 200 130" fill="none" stroke="rgba(196,98,45,0.3)" stroke-width="1.5"/>
+        <!-- Cup rim -->
+        <ellipse cx="140" cy="130" rx="60" ry="12" fill="#4a2e18"/>
+        <ellipse cx="140" cy="128" rx="54" ry="10" fill="#2C1A0E"/>
+        <!-- Coffee surface -->
+        <ellipse cx="140" cy="128" rx="48" ry="8" fill="#1a0f07"/>
+        <!-- Latte art -->
+        <ellipse cx="140" cy="128" rx="30" ry="5" fill="none" stroke="rgba(196,98,45,0.5)" stroke-width="1.5"/>
+        <path d="M125 126 Q132 118 140 126 Q148 134 155 126" stroke="rgba(196,98,45,0.4)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <!-- Handle -->
+        <path d="M200 155 Q230 155 230 180 Q230 205 200 205" stroke="#4a2e18" stroke-width="12" fill="none" stroke-linecap="round"/>
+        <path d="M200 155 Q222 155 222 180 Q222 205 200 205" stroke="#3d2614" stroke-width="8" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div class="hero-rating" aria-label="Google rating 4.6 out of 5">⭐ 4.6 — 1 156 <span data-cs="recenzí" data-en="reviews">recenzí</span></div>
+    </div>
+  </div>
+
+  <div class="scroll-cue" aria-hidden="true">
+    <span data-cs="Scroll" data-en="Scroll">Scroll</span>
+    <svg width="16" height="20" viewBox="0 0 16 20" fill="none"><path d="M8 1v15M2 11l6 6 6-6" stroke="rgba(250,246,240,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     HIGHLIGHTS BAR
+     ============================================================ -->
+<div id="highlights" role="region" aria-label="Highlights">
+  <div class="highlights-inner">
+    <div class="highlight-item">
+      <span class="hl-icon">☕</span>
+      <div class="hl-text">
+        <strong data-cs="Mamacoffee" data-en="Mamacoffee">Mamacoffee</strong>
+        <span data-cs="Espresso &amp; filtr" data-en="Espresso &amp; filter">Espresso &amp; filtr</span>
+      </div>
+    </div>
+    <div class="highlight-item">
+      <span class="hl-icon">🍳</span>
+      <div class="hl-text">
+        <strong data-cs="Brunch každý den" data-en="Brunch daily">Brunch každý den</strong>
+        <span data-cs="Snídaně do 14:00" data-en="Breakfast until 14:00">Snídaně do 14:00</span>
+      </div>
+    </div>
+    <div class="highlight-item">
+      <span class="hl-icon">🍺</span>
+      <div class="hl-text">
+        <strong data-cs="Vinohradská 11" data-en="Vinohradská 11">Vinohradská 11</strong>
+        <span data-cs="Čepovaný craft beer" data-en="Craft beer on tap">Čepovaný craft beer</span>
+      </div>
+    </div>
+    <div class="highlight-item">
+      <span class="hl-icon">🎂</span>
+      <div class="hl-text">
+        <strong data-cs="Domácí dorty" data-en="Homemade cakes">Domácí dorty</strong>
+        <span data-cs="Každý den čerstvé" data-en="Fresh every day">Každý den čerstvé</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     MENU
+     ============================================================ -->
+<section id="menu" aria-labelledby="menu-heading">
+  <div class="menu-header reveal">
+    <div class="section-label" aria-hidden="true">
+      <span data-cs="Co nabízíme" data-en="What we offer">Co nabízíme</span>
+    </div>
+    <h2 class="section-title" id="menu-heading" data-cs="Jídelní a nápojový lístek" data-en="Food &amp; Drink Menu">Jídelní a nápojový lístek</h2>
+  </div>
+
+  <div class="menu-tabs reveal" role="tablist" aria-label="Menu categories">
+    <button class="tab-btn active" data-tab="coffee" role="tab" aria-selected="true"  aria-controls="tab-coffee"  data-cs="Káva"           data-en="Coffee">Káva</button>
+    <button class="tab-btn"        data-tab="food"   role="tab" aria-selected="false" aria-controls="tab-food"    data-cs="Jídlo"          data-en="Food">Jídlo</button>
+    <button class="tab-btn"        data-tab="cakes"  role="tab" aria-selected="false" aria-controls="tab-cakes"   data-cs="Dorty &amp; dezerty" data-en="Cakes &amp; Sweets">Dorty &amp; dezerty</button>
+    <button class="tab-btn"        data-tab="drinks" role="tab" aria-selected="false" aria-controls="tab-drinks"  data-cs="Nápoje"         data-en="Drinks">Nápoje</button>
+  </div>
+
+  <!-- COFFEE TAB -->
+  <div class="tab-panel active reveal" id="tab-coffee" role="tabpanel">
+    <div class="menu-grid">
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Espresso" data-en="Espresso">Espresso</span>
+          <span class="menu-item-price">50–65 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Čistý, intenzivní. Praženo v Mamacoffee, pražírně s duší." data-en="Clean, intense. Roasted by Mamacoffee, a roastery with soul.">Čistý, intenzivní. Praženo v Mamacoffee, pražírně s duší.</p>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Cappuccino" data-en="Cappuccino">Cappuccino</span>
+          <span class="menu-item-price">75–90 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Espresso s hedvábnou mléčnou pěnou. Klasika, která nikdy nezklamě." data-en="Espresso with silky milk foam. A classic that never disappoints.">Espresso s hedvábnou mléčnou pěnou. Klasika, která nikdy nezklamě.</p>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Flat White" data-en="Flat White">Flat White</span>
+          <span class="menu-item-price">80–95 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Dvojité espresso s jemně napěněným mlékem. Silnější a sametovější." data-en="Double espresso with gently textured milk. Stronger and velvety.">Dvojité espresso s jemně napěněným mlékem. Silnější a sametovější.</p>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Mocha" data-en="Mocha">Mocha</span>
+          <span class="menu-item-price">90–105 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Káva, čokoláda a mléko. Ideální pro ty, kteří si rádi dopřejí." data-en="Coffee, chocolate, and milk. Ideal for those who like to indulge.">Káva, čokoláda a mléko. Ideální pro ty, kteří si rádi dopřejí.</p>
+        <span class="badge-fav">★ <span data-cs="Oblíbené" data-en="Favourite">Oblíbené</span></span>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Chai Latte" data-en="Chai Latte">Chai Latte</span>
+          <span class="menu-item-price">90–110 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Koření, mléko, teplo. Přímo stvořené pro deštivé pražské odpoledne." data-en="Spices, milk, warmth. Made for a rainy Prague afternoon.">Koření, mléko, teplo. Přímo stvořené pro deštivé pražské odpoledne.</p>
+        <span class="badge-fav">★ <span data-cs="Oblíbené" data-en="Favourite">Oblíbené</span></span>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Matcha Latte" data-en="Matcha Latte">Matcha Latte</span>
+          <span class="menu-item-price">95–115 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Ceremonialní matcha s napěněným mlékem. Uklidní mysl, probudí tělo." data-en="Ceremonial matcha with frothed milk. Calms the mind, wakes the body.">Ceremonialní matcha s napěněným mlékem. Uklidní mysl, probudí tělo.</p>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Filtrovaná káva" data-en="Filter Coffee">Filtrovaná káva</span>
+          <span class="menu-item-price">60–80 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Pomalá příprava, čistá chuť. Ideální na dopoledne se zápisníkem." data-en="Slow brew, clean taste. Perfect for a morning with a notebook.">Pomalá příprava, čistá chuť. Ideální na dopoledne se zápisníkem.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOD TAB -->
+  <div class="tab-panel" id="tab-food" role="tabpanel">
+    <div class="menu-grid">
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Snídaňové burrito" data-en="Breakfast Burrito">Snídaňové burrito</span>
+          <span class="menu-item-price">150–180 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Vejce, zelenina, sýr, omáčka — zabaleno a připraveno ke konzumaci. Naprostý bestseller." data-en="Eggs, veg, cheese, sauce — wrapped and ready. An absolute bestseller.">Vejce, zelenina, sýr, omáčka — zabaleno a připraveno ke konzumaci. Naprostý bestseller.</p>
+        <span class="badge-fav">★ <span data-cs="Oblíbené" data-en="Favourite">Oblíbené</span></span>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Omeleta se šunkou" data-en="Ham &amp; Cheese Omelette">Omeleta se šunkou</span>
+          <span class="menu-item-price">140–165 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Šunka, cibulka, sýr. Uvnitř nádherně tekutá, venku zlatavá." data-en="Ham, onions, cheese. Perfectly runny inside, golden outside.">Šunka, cibulka, sýr. Uvnitř nádherně tekutá, venku zlatavá.</p>
+        <span class="badge-fav">★ <span data-cs="Oblíbené" data-en="Favourite">Oblíbené</span></span>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Bagel se tuňákem" data-en="Tuna Bagel">Bagel se tuňákem</span>
+          <span class="menu-item-price">130–155 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Slaný bagel s tuňákovým salátem a zeleninou. Rychlé, sytící, dobré." data-en="Savoury bagel with tuna salad and greens. Quick, filling, good.">Slaný bagel s tuňákovým salátem a zeleninou. Rychlé, sytící, dobré.</p>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Sladký bagel" data-en="Sweet Bagel">Sladký bagel</span>
+          <span class="menu-item-price">110–135 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Banán, arašídové máslo a javorový sirup. Snídaně, která se stane zvykem." data-en="Banana, peanut butter and maple syrup. Breakfast that becomes a habit.">Banán, arašídové máslo a javorový sirup. Snídaně, která se stane zvykem.</p>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Quesadilla" data-en="Quesadilla">Quesadilla</span>
+          <span class="menu-item-price">130–155 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Opečená tortilla se sýrem a náplní dle denní nabídky. Teplá a křupavá." data-en="Toasted tortilla with cheese and daily filling. Warm and crispy.">Opečená tortilla se sýrem a náplní dle denní nabídky. Teplá a křupavá.</p>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Ovesné otruby s ovocem" data-en="Oat Bran Porridge">Ovesné otruby s ovocem</span>
+          <span class="menu-item-price">110–130 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Teplá, výživná kaše s čerstvým ovocem. Tak dobrá, že si ji zákazníci objednávají znovu." data-en="Warm, nourishing porridge with fresh fruit. So good guests keep coming back.">Teplá, výživná kaše s čerstvým ovocem. Tak dobrá, že si ji zákazníci objednávají znovu.</p>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Sendviče" data-en="Sandwiches">Sendviče</span>
+          <span class="menu-item-price">110–150 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Výběr sendvičů dle aktuální nabídky — obsah se mění se sezónou." data-en="Selection of sandwiches — the filling changes with the season.">Výběr sendvičů dle aktuální nabídky — obsah se mění se sezónou.</p>
+      </div>
+    </div>
+    <p style="margin-top:20px; font-family:var(--mono); font-size:0.72rem; letter-spacing:0.08em; color:var(--muted);" data-cs="★ Snídaně a brunch podáváme každý den do 14:00" data-en="★ Breakfast &amp; brunch served daily until 14:00">★ Snídaně a brunch podáváme každý den do 14:00</p>
+  </div>
+
+  <!-- CAKES TAB -->
+  <div class="tab-panel" id="tab-cakes" role="tabpanel">
+    <div class="menu-grid">
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Kávový dort" data-en="Coffee Cake">Kávový dort</span>
+          <span class="menu-item-price">65–85 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Vlhký, bohatý, s výraznou kávovou chutí. K ranní kávě jako stvořený." data-en="Moist, rich, with a bold coffee flavour. Made for morning coffee.">Vlhký, bohatý, s výraznou kávovou chutí. K ranní kávě jako stvořený.</p>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Cheesecake" data-en="Cheesecake">Cheesecake</span>
+          <span class="menu-item-price">70–90 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Krémový, hustý a dostatečně kyselý. Recept, který nikdy nezmění." data-en="Creamy, dense, pleasantly tart. A recipe they'll never change.">Krémový, hustý a dostatečně kyselý. Recept, který nikdy nezmění.</p>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Ořechový koláč" data-en="Nut Pie">Ořechový koláč</span>
+          <span class="menu-item-price">65–85 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Poctivý, hutný, plný ořechů. Vůně podzimní kuchyně." data-en="Honest, dense, full of nuts. The smell of autumn in a kitchen.">Poctivý, hutný, plný ořechů. Vůně podzimní kuchyně.</p>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Čokoládový dort (bez lepku)" data-en="Chocolate Cake (GF)">Čokoládový dort (bez lepku)</span>
+          <span class="menu-item-price">70–90 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Intenzivně čokoládový a přitom bez lepku. Nemusíte se vzdávat ničeho." data-en="Intensely chocolatey and gluten-free. You don't have to give anything up.">Intenzivně čokoládový a přitom bez lepku. Nemusíte se vzdávat ničeho.</p>
+        <span class="badge-gf">🌿 <span data-cs="Bez lepku" data-en="Gluten-free">Bez lepku</span></span>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Sezónní dezerty" data-en="Seasonal Desserts">Sezónní dezerty</span>
+          <span class="menu-item-price">60–90 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Nabídka se mění s každou sezónou. Přijďte a zjistěte, co právě pečeme." data-en="The selection rotates with each season. Come in and see what's fresh.">Nabídka se mění s každou sezónou. Přijďte a zjistěte, co právě pečeme.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- DRINKS TAB -->
+  <div class="tab-panel" id="tab-drinks" role="tabpanel">
+    <div class="menu-grid">
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Vinohradská 11 (čepovaná)" data-en="Vinohradská 11 (on tap)">Vinohradská 11 (čepovaná)</span>
+          <span class="menu-item-price">55–70 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Místní řemeslný ležák z Vinohradského pivovaru. Servírujeme ho s hrdostí." data-en="Local craft lager from the Vinohradský Pivovar brewery. Served with pride.">Místní řemeslný ležák z Vinohradského pivovaru. Servírujeme ho s hrdostí.</p>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Přírodní vína" data-en="Natural Wines">Přírodní vína</span>
+          <span class="menu-item-price">85–130 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Pečlivě vybraná přírodní vína pro ty, kdo vědí, co chtějí." data-en="Carefully selected natural wines for those who know what they want.">Pečlivě vybraná přírodní vína pro ty, kdo vědí, co chtějí.</p>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Domácí limonády" data-en="Homemade Lemonades">Domácí limonády</span>
+          <span class="menu-item-price">65–80 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Připravujeme je sami, recept měníme dle sezóny. Letní osvěžení." data-en="We make them in-house, and the recipe changes with the seasons.">Připravujeme je sami, recept měníme dle sezóny. Letní osvěžení.</p>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Čaj — horký i ledový" data-en="Tea — hot &amp; iced">Čaj — horký i ledový</span>
+          <span class="menu-item-price">55–75 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Tradiční i bylinné čaje. Ledový čaj v létě, horký čaj v zimě." data-en="Classic and herbal teas. Iced in summer, hot in winter.">Tradiční i bylinné čaje. Ledový čaj v létě, horký čaj v zimě.</p>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-top">
+          <span class="menu-item-name" data-cs="Soft drinky" data-en="Soft Drinks">Soft drinky</span>
+          <span class="menu-item-price">45–65 Kč</span>
+        </div>
+        <p class="menu-item-desc" data-cs="Vody, džusy, minerálky a sezónní nápoje." data-en="Waters, juices, sparkling water and seasonal drinks.">Vody, džusy, minerálky a sezónní nápoje.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Walk-in note -->
+  <div class="walk-in-note reveal" aria-label="No reservations notice">
+    <div class="walk-in-note-icon">📌</div>
+    <div>
+      <strong data-cs="Rezervace stolů nepřijímáme" data-en="No table reservations">Rezervace stolů nepřijímáme</strong>
+      <span data-cs="Prostě přijďte. Objednávky se zadávají u baru. Karty vítány. Přijímáme i takeaway." data-en="Just walk in. Orders placed at the bar. Cards welcome. Takeaway available.">Prostě přijďte. Objednávky se zadávají u baru. Karty vítány. Přijímáme i takeaway.</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     ABOUT
+     ============================================================ -->
+<section id="about" aria-labelledby="about-heading">
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <div class="section-label" aria-hidden="true">
+        <span data-cs="Náš příběh" data-en="Our story">Náš příběh</span>
+      </div>
+      <h2 class="section-title" id="about-heading">
+        <span data-cs="Kavárna s duší Žižkova" data-en="A café with the soul of Žižkov">Kavárna s duší Žižkova</span>
+      </h2>
+      <p data-cs="Žižkavárna vznikla v srdci Žižkova — čtvrti, která si vždy dělala věci po svém. Místní jí říkají &ldquo;Svobodná republika Žižkov&rdquo;, a to není jen legrace. Je to místo alternativní kultury, kreativní komunity a hrdé dělnické minulosti. Přesně sem patříme." data-en="Žižkavárna was born in the heart of Žižkov — a neighbourhood that has always done things its own way. Locals call it the &ldquo;Free Republic of Žižkov&rdquo;, and that's not just a joke. It's a place of alternative culture, creative community, and proud working-class history. This is exactly where we belong.">
+        Žižkavárna vznikla v srdci Žižkova — čtvrti, která si vždy dělala věci po svém. Místní jí říkají &ldquo;Svobodná republika Žižkov&rdquo;, a to není jen legrace. Je to místo alternativní kultury, kreativní komunity a hrdé dělnické minulosti. Přesně sem patříme.
+      </p>
+      <p data-cs="Interiér kavárny vypadá jako obývák, ve kterém byste rádi bydleli — Thonetovy ohýbané židle, teplé světlo, starožitný duch. Přijďte se setkat s přáteli, číst knížku, pracovat na laptotu nebo prostě jen sedět a nechat čas plynout." data-en="The interior feels like a living room you'd actually want to live in — Thonet bentwood chairs, warm lighting, a vintage soul. Come meet friends, read a book, work on your laptop, or simply sit and let time slow down.">
+        Interiér kavárny vypadá jako obývák, ve kterém byste rádi bydleli — Thonetovy ohýbané židle, teplé světlo, starožitný duch. Přijďte se setkat s přáteli, číst knížku, pracovat na laptotu nebo prostě jen sedět a nechat čas plynout.
+      </p>
+      <p data-cs="Kávu bereme vážně — proto spolupracujeme výhradně s &lt;strong&gt;Mamacoffee&lt;/strong&gt;, rodinnou pražírnou z Prahy, která sdílí naše hodnoty: poctivost, kvalita, lidský přístup. V létě posezení přesunujeme na venkovní terasu s markýzou. Pro soukromé akce nabízíme salonek." data-en="We take coffee seriously — which is why we work exclusively with &lt;strong&gt;Mamacoffee&lt;/strong&gt;, a Prague family roastery that shares our values: honesty, quality, a human touch. In summer, life moves to our outdoor terrace. For private occasions, we have a salonek.">
+        Kávu bereme vážně — proto spolupracujeme výhradně s <strong>Mamacoffee</strong>, rodinnou pražírnou z Prahy, která sdílí naše hodnoty: poctivost, kvalita, lidský přístup. V létě posezení přesunujeme na venkovní terasu s markýzou. Pro soukromé akce nabízíme salonek.
+      </p>
+      <div class="about-tags">
+        <span class="about-tag" data-cs="Venkovní terasa" data-en="Outdoor terrace">Venkovní terasa</span>
+        <span class="about-tag" data-cs="Mamacoffee" data-en="Mamacoffee">Mamacoffee</span>
+        <span class="about-tag" data-cs="Salonek" data-en="Private room">Salonek</span>
+        <span class="about-tag" data-cs="Free WiFi" data-en="Free WiFi">Free WiFi</span>
+        <span class="about-tag" data-cs="Platba kartou" data-en="Card payments">Platba kartou</span>
+        <span class="about-tag" data-cs="Takeaway" data-en="Takeaway">Takeaway</span>
+      </div>
+    </div>
+
+    <div class="about-visual reveal" aria-hidden="true">
+      <div class="about-card about-card-main">
+        <div class="big-num">4.6</div>
+        <div class="card-label" data-cs="Hodnocení Google" data-en="Google Rating">Hodnocení Google</div>
+        <div class="card-val" data-cs="z 1 156 recenzí" data-en="from 1,156 reviews">z 1 156 recenzí</div>
+      </div>
+      <div class="about-card about-card-small-1">
+        <div class="card-label" data-cs="Otevřeno od" data-en="Open from">Otevřeno od</div>
+        <div class="card-val" data-cs="7:30 v týdnu" data-en="7:30 on weekdays">7:30 v týdnu</div>
+      </div>
+      <div class="about-card about-card-small-2">
+        <div class="card-label" data-cs="Kavárna od" data-en="Café since">Kavárna od</div>
+        <div class="card-val" data-cs="Praha 3" data-en="Praha 3">Praha 3</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     OPENING HOURS
+     ============================================================ -->
+<section id="hours" aria-labelledby="hours-heading">
+  <div class="hours-grid">
+    <div class="hours-left reveal">
+      <div class="section-label" aria-hidden="true">
+        <span data-cs="Kdy nás najdete" data-en="When to find us">Kdy nás najdete</span>
+      </div>
+      <h2 class="section-title" id="hours-heading" data-cs="Otevírací doba" data-en="Opening Hours">Otevírací doba</h2>
+      <div id="open-status" role="status" aria-live="polite">…</div>
+
+      <table class="hours-table" aria-label="Opening hours by day">
+        <tbody id="hoursTable">
+          <!-- Filled by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="hours-policies reveal">
+      <div class="section-label" aria-hidden="true">
+        <span data-cs="Důležité informace" data-en="Good to know">Důležité informace</span>
+      </div>
+      <div style="height:16px;"></div>
+      <div class="policy-item">
+        <div class="policy-icon">🚶</div>
+        <div class="policy-text">
+          <strong data-cs="Bez rezervací" data-en="No reservations">Bez rezervací</strong>
+          <span data-cs="Rezervace stolů nepřijímáme. Přijďte rovnou — dveře jsou pro vás otevřeny." data-en="We don't take table reservations. Just walk in — the doors are open.">Rezervace stolů nepřijímáme. Přijďte rovnou — dveře jsou pro vás otevřeny.</span>
+        </div>
+      </div>
+      <div class="policy-item">
+        <div class="policy-icon">☕</div>
+        <div class="policy-text">
+          <strong data-cs="Objednávky u baru" data-en="Order at the bar">Objednávky u baru</strong>
+          <span data-cs="Všechny objednávky zadáváte přímo u baru. Není třeba čekat na obsluhu." data-en="All orders are placed directly at the bar. No need to wait for table service.">Všechny objednávky zadáváte přímo u baru. Není třeba čekat na obsluhu.</span>
+        </div>
+      </div>
+      <div class="policy-item">
+        <div class="policy-icon">💳</div>
+        <div class="policy-text">
+          <strong data-cs="Platba kartou v pořádku" data-en="Card payments accepted">Platba kartou v pořádku</strong>
+          <span data-cs="Hotovost i karta — obojí vítáme." data-en="Cash and card — both welcome.">Hotovost i karta — obojí vítáme.</span>
+        </div>
+      </div>
+      <div class="policy-item">
+        <div class="policy-icon">📶</div>
+        <div class="policy-text">
+          <strong data-cs="Bezplatné WiFi" data-en="Free WiFi">Bezplatné WiFi</strong>
+          <span data-cs="Heslo dostanete u baru. Pracujte v klidu." data-en="Ask for the password at the bar. Work in peace.">Heslo dostanete u baru. Pracujte v klidu.</span>
+        </div>
+      </div>
+      <div class="policy-item">
+        <div class="policy-icon">🥡</div>
+        <div class="policy-text">
+          <strong data-cs="Takeaway &amp; donáška" data-en="Takeaway &amp; delivery">Takeaway &amp; donáška</strong>
+          <span data-cs="Vše si můžete vzít s sebou nebo objednat s donáškou." data-en="Everything is available to take away or delivered to you.">Vše si můžete vzít s sebou nebo objednat s donáškou.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     REVIEWS
+     ============================================================ -->
+<section id="reviews" aria-labelledby="reviews-heading">
+  <div class="reviews-header reveal">
+    <div>
+      <div class="section-label" aria-hidden="true">
+        <span data-cs="Co říkají hosté" data-en="What guests say">Co říkají hosté</span>
+      </div>
+      <h2 class="section-title" id="reviews-heading" data-cs="Recenze" data-en="Reviews">Recenze</h2>
+    </div>
+    <div style="display:flex;gap:36px;align-items:flex-end;flex-wrap:wrap;">
+      <div class="google-rating">
+        <span class="rating-score" aria-label="Rating: 4.6">4.6</span>
+        <div class="rating-detail">
+          <span class="stars" aria-hidden="true">★★★★★</span>
+          <span class="rating-count" data-cs="1 156 recenzí na Google" data-en="1,156 reviews on Google">1 156 recenzí na Google</span>
+        </div>
+      </div>
+      <div class="carousel-controls" aria-label="Testimonial navigation">
+        <button class="carousel-btn" id="prevBtn" aria-label="Previous review">←</button>
+        <button class="carousel-btn" id="nextBtn" aria-label="Next review">→</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="carousel-track-outer reveal">
+    <div class="carousel-track" id="carouselTrack">
+      <div class="review-card" role="article">
+        <span class="review-quote-mark" aria-hidden="true">"</span>
+        <div class="review-stars" aria-label="5 stars">★★★★★</div>
+        <p class="review-text" data-cs="Chutné, útulné a přívětivé — skvělá zastávka v Žižkově." data-en="Tasty, cozy, and friendly — a great stop in Žižkov.">Chutné, útulné a přívětivé — skvělá zastávka v Žižkově.</p>
+        <span class="review-author">— Eduardo Luna</span>
+      </div>
+      <div class="review-card" role="article">
+        <span class="review-quote-mark" aria-hidden="true">"</span>
+        <div class="review-stars" aria-label="5 stars">★★★★★</div>
+        <p class="review-text" data-cs="Nejlepší ovesné otruby, jaké jsem kdy jedl. Personál super přátelský a atmosféra výborná." data-en="Best tasting oat bran porridge ever. Staff super friendly and a great cafe vibe.">Nejlepší ovesné otruby, jaké jsem kdy jedl. Personál super přátelský a atmosféra výborná.</p>
+        <span class="review-author">— Philipp Lemke</span>
+      </div>
+      <div class="review-card" role="article">
+        <span class="review-quote-mark" aria-hidden="true">"</span>
+        <div class="review-stars" aria-label="5 stars">★★★★★</div>
+        <p class="review-text" data-cs="Moje oblíbená kavárna v celé čtvrti. Vracím se sem pořád." data-en="Favourite coffee shop in the neighbourhood! I keep coming back.">Moje oblíbená kavárna v celé čtvrti. Vracím se sem pořád.</p>
+        <span class="review-author">— <span data-cs="Místní host" data-en="Local guest">Místní host</span></span>
+      </div>
+      <div class="review-card" role="article">
+        <span class="review-quote-mark" aria-hidden="true">"</span>
+        <div class="review-stars" aria-label="5 stars">★★★★★</div>
+        <p class="review-text" data-cs="Úžasná snídaně, vynikající omeleta! Velmi útulné místo a přátelský personál." data-en="Amazing breakfast, delicious omelette! Very cosy place and friendly staff.">Úžasná snídaně, vynikající omeleta! Velmi útulné místo a přátelský personál.</p>
+        <span class="review-author">— <span data-cs="Host na Google" data-en="Google Guest">Host na Google</span></span>
+      </div>
+      <div class="review-card" role="article">
+        <span class="review-quote-mark" aria-hidden="true">"</span>
+        <div class="review-stars" aria-label="5 stars">★★★★★</div>
+        <p class="review-text" data-cs="Dokonalé místo na brunch! Nic víc k tomu nepotřebuji dodat." data-en="Perfect place for brunch! Nothing more needs to be said.">Dokonalé místo na brunch! Nic víc k tomu nepotřebuji dodat.</p>
+        <span class="review-author">— <span data-cs="Pravidelný host" data-en="Regular guest">Pravidelný host</span></span>
+      </div>
+      <div class="review-card" role="article">
+        <span class="review-quote-mark" aria-hidden="true">"</span>
+        <div class="review-stars" aria-label="4 stars">★★★★☆</div>
+        <p class="review-text" data-cs="Milá malá kavárna. Dobrý flat white. Dorty vypadaly lákavě." data-en="Great little coffee shop. Nice flat white. Cakes looked tasty.">Milá malá kavárna. Dobrý flat white. Dorty vypadaly lákavě.</p>
+        <span class="review-author">— <span data-cs="Návštěvník" data-en="Visitor">Návštěvník</span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     FIND US
+     ============================================================ -->
+<section id="findus" aria-labelledby="findus-heading">
+  <div class="findus-grid">
+    <div class="reveal">
+      <div class="section-label" aria-hidden="true">
+        <span data-cs="Kde nás najdete" data-en="Where to find us">Kde nás najdete</span>
+      </div>
+      <h2 class="section-title" id="findus-heading" data-cs="Navštivte nás" data-en="Visit Us">Navštivte nás</h2>
+
+      <div class="contact-block">
+        <div class="label" data-cs="Adresa" data-en="Address">Adresa</div>
+        <div class="value">
+          Kubelíkova 1477/17<br>
+          Žižkov, 130 00 Praha 3<br>
+          Česká republika
+        </div>
+      </div>
+      <div class="contact-block">
+        <div class="label" data-cs="Telefon" data-en="Phone">Telefon</div>
+        <div class="value"><a href="tel:+420606908599">+420 606 908 599</a></div>
+      </div>
+      <div class="contact-block">
+        <div class="label" data-cs="Web" data-en="Website">Web</div>
+        <div class="value"><a href="https://zizkavarna.cz" target="_blank" rel="noopener">zizkavarna.cz</a></div>
+      </div>
+      <div class="contact-block">
+        <div class="label" data-cs="Otevírací doba" data-en="Opening Hours">Otevírací doba</div>
+        <div class="value" style="font-family:var(--mono);font-size:0.85rem;">
+          <span data-cs="Po–Pá: 7:30–21:00" data-en="Mon–Fri: 7:30–21:00">Po–Pá: 7:30–21:00</span><br>
+          <span data-cs="So–Ne: 8:30–21:00" data-en="Sat–Sun: 8:30–21:00">So–Ne: 8:30–21:00</span>
+        </div>
+      </div>
+
+      <div class="transport-note">
+        <p data-cs="🚇 Žižkov je snadno dostupný z centra Prahy. Pěšky z Florenc (metro B/C) nebo autobusem ze Žižkovského náměstí. Neopomenutelná dominanta okolí — Žižkovský televizní vysílač." data-en="🚇 Žižkov is easily reachable from Prague city centre. Walk from Florenc (metro B/C) or take the bus from Žižkov Square. Don't miss the iconic Žižkov TV Tower nearby.">
+          🚇 Žižkov je snadno dostupný z centra Prahy. Pěšky z Florenc (metro B/C) nebo autobusem ze Žižkovského náměstí. Neopomenutelná dominanta okolí — Žižkovský televizní vysílač.
+        </p>
+      </div>
+
+      <div class="social-row">
+        <a href="https://facebook.com/zizkavarna" target="_blank" rel="noopener" class="social-link" aria-label="Facebook page">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          Facebook
+        </a>
+      </div>
+    </div>
+
+    <div class="map-container reveal">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2560.3!2d14.458286!3d50.086133!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x470b94bded05aef9%3A0xbe7b52de11a5f7bc!2sKubel%C3%ADkova%201477%2F17%2C%20130%2000%20Praha%203-Vinohrady!5e0!3m2!1scs!2scz!4v1710000000000!5m2!1scs!2scz"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="Žižkavárna map location"
+        aria-label="Map showing Žižkavárna location at Kubelíkova 17, Praha 3">
+      </iframe>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer role="contentinfo">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+          <path d="M6 8h14a1 1 0 0 1 1 1v8a7 7 0 0 1-14 0V9a1 1 0 0 1 1-1z" stroke="#C4622D" stroke-width="1.5" fill="none"/>
+          <path d="M20 11h2a2 2 0 0 1 0 4h-2" stroke="#C4622D" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <line x1="9" y1="22" x2="5" y2="26" stroke="#C4622D" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="17" y1="22" x2="21" y2="26" stroke="#C4622D" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Žižkavárna
+      </div>
+      <p class="footer-tagline" data-cs="Váš obývák v srdci Žižkova — od rána do večera, každý den." data-en="Your living room in the heart of Žižkov — from morning to evening, every day.">
+        Váš obývák v srdci Žižkova — od rána do večera, každý den.
+      </p>
+    </div>
+
+    <div>
+      <div class="footer-col-title" data-cs="Navigace" data-en="Navigation">Navigace</div>
+      <ul class="footer-links">
+        <li><a href="#hero"   data-cs="Domů"          data-en="Home">Domů</a></li>
+        <li><a href="#menu"   data-cs="Menu"           data-en="Menu">Menu</a></li>
+        <li><a href="#about"  data-cs="O nás"          data-en="About">O nás</a></li>
+        <li><a href="#hours"  data-cs="Otevírací doba" data-en="Opening Hours">Otevírací doba</a></li>
+        <li><a href="#findus" data-cs="Jak nás najít"  data-en="Find Us">Jak nás najít</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="footer-col-title" data-cs="Kontakt" data-en="Contact">Kontakt</div>
+      <div class="footer-contact-item">
+        <div class="lbl" data-cs="Adresa" data-en="Address">Adresa</div>
+        <div class="val">Kubelíkova 1477/17<br>130 00 Praha 3</div>
+      </div>
+      <div class="footer-contact-item">
+        <div class="lbl" data-cs="Telefon" data-en="Phone">Telefon</div>
+        <div class="val"><a href="tel:+420606908599" style="color:inherit;">+420 606 908 599</a></div>
+      </div>
+      <div class="footer-contact-item">
+        <div class="lbl" data-cs="Otevřeno" data-en="Hours">Otevřeno</div>
+        <div class="val" style="font-family:var(--mono);font-size:0.78rem;">
+          <span data-cs="Po–Pá 7:30–21:00" data-en="Mon–Fri 7:30–21:00">Po–Pá 7:30–21:00</span><br>
+          <span data-cs="So–Ne 8:30–21:00" data-en="Sat–Sun 8:30–21:00">So–Ne 8:30–21:00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span class="footer-copy">© Žižkavárna s.r.o., Praha 3</span>
+    <span class="footer-copy" data-cs="Vytvořeno s láskou k Žižkovu" data-en="Made with love for Žižkov">Vytvořeno s láskou k Žižkovu</span>
+  </div>
+</footer>
+
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+(function() {
+  'use strict';
+
+  /* ---- Language ----------------------------------------------- */
+  let currentLang = 'cs';
+
+  function applyLang(lang) {
+    currentLang = lang;
+    document.querySelectorAll('[data-cs]').forEach(el => {
+      el.innerHTML = el.getAttribute('data-' + lang) || el.innerHTML;
+    });
+    const btn = document.getElementById('langToggle');
+    btn.textContent = lang === 'cs' ? '🇬🇧 EN' : '🇨🇿 CZ';
+    document.documentElement.lang = lang;
+  }
+
+  document.getElementById('langToggle').addEventListener('click', () => {
+    applyLang(currentLang === 'cs' ? 'en' : 'cs');
+  });
+
+  /* ---- Opening Hours Logic ------------------------------------ */
+  const HOURS = [
+    { day_cs: 'Pondělí',  day_en: 'Monday',    open: 7.5,  close: 21 },
+    { day_cs: 'Úterý',    day_en: 'Tuesday',   open: 7.5,  close: 21 },
+    { day_cs: 'Středa',   day_en: 'Wednesday', open: 7.5,  close: 21 },
+    { day_cs: 'Čtvrtek',  day_en: 'Thursday',  open: 7.5,  close: 21 },
+    { day_cs: 'Pátek',    day_en: 'Friday',    open: 7.5,  close: 21 },
+    { day_cs: 'Sobota',   day_en: 'Saturday',  open: 8.5,  close: 21 },
+    { day_cs: 'Neděle',   day_en: 'Sunday',    open: 8.5,  close: 21 },
+  ];
+
+  function buildHoursTable() {
+    const now   = new Date();
+    const jsDay = now.getDay(); // 0=Sun
+    const today = jsDay === 0 ? 6 : jsDay - 1; // 0=Mon
+    const tbody = document.getElementById('hoursTable');
+    tbody.innerHTML = '';
+    HOURS.forEach((row, i) => {
+      const tr = document.createElement('tr');
+      if (i === today) tr.classList.add('today');
+      const openStr  = formatHour(row.open);
+      const closeStr = formatHour(row.close);
+      tr.innerHTML = `
+        <td>
+          <span class="today-marker">
+            ${i === today ? '<span class="today-dot" aria-hidden="true"></span>' : ''}
+            <span data-cs="${row.day_cs}" data-en="${row.day_en}">${row.day_cs}</span>
+          </span>
+        </td>
+        <td>${openStr} – ${closeStr}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+    // Re-apply language in case it's changed
+    if (currentLang !== 'cs') applyLang(currentLang);
+  }
+
+  function formatHour(h) {
+    const hrs  = Math.floor(h);
+    const mins = h % 1 === 0.5 ? '30' : '00';
+    return `${hrs}:${mins}`;
+  }
+
+  function updateStatus() {
+    const now     = new Date();
+    const jsDay   = now.getDay();
+    const today   = jsDay === 0 ? 6 : jsDay - 1;
+    const row     = HOURS[today];
+    const nowH    = now.getHours() + now.getMinutes() / 60;
+    const isOpen  = nowH >= row.open && nowH < row.close;
+    const el      = document.getElementById('open-status');
+    if (isOpen) {
+      el.className = 'open';
+      el.setAttribute('data-cs', `Otevřeno · zavíráme v ${formatHour(row.close)}`);
+      el.setAttribute('data-en', `Open · closing at ${formatHour(row.close)}`);
+      el.textContent = currentLang === 'cs'
+        ? `Otevřeno · zavíráme v ${formatHour(row.close)}`
+        : `Open · closing at ${formatHour(row.close)}`;
+    } else {
+      // Find next opening
+      const nextDay = (today + 1) % 7;
+      const nextRow = HOURS[nextDay];
+      el.className = 'closed';
+      el.setAttribute('data-cs', `Zavřeno · otevíráme v ${formatHour(nextRow.open)}`);
+      el.setAttribute('data-en', `Closed · opening at ${formatHour(nextRow.open)}`);
+      el.textContent = currentLang === 'cs'
+        ? `Zavřeno · otevíráme v ${formatHour(nextRow.open)}`
+        : `Closed · opening at ${formatHour(nextRow.open)}`;
+    }
+  }
+
+  buildHoursTable();
+  updateStatus();
+
+  /* ---- Sticky Nav --------------------------------------------- */
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 80);
+  }, { passive: true });
+
+  /* ---- Hamburger ---------------------------------------------- */
+  const hamburger   = document.getElementById('hamburger');
+  const mobileMenu  = document.getElementById('mobileMenu');
+
+  hamburger.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = mobileMenu.classList.toggle('open');
+    hamburger.classList.toggle('open', open);
+    hamburger.setAttribute('aria-expanded', open);
+  });
+
+  document.addEventListener('click', e => {
+    if (!mobileMenu.contains(e.target) && !hamburger.contains(e.target)) {
+      closeMobile();
+    }
+  });
+
+  window.closeMobile = function() {
+    mobileMenu.classList.remove('open');
+    hamburger.classList.remove('open');
+    hamburger.setAttribute('aria-expanded', false);
+  };
+
+  /* ---- Menu Tabs ---------------------------------------------- */
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      const panel = document.getElementById('tab-' + btn.dataset.tab);
+      if (panel) panel.classList.add('active');
+    });
+  });
+
+  /* ---- Carousel ----------------------------------------------- */
+  const track    = document.getElementById('carouselTrack');
+  const cards    = track.querySelectorAll('.review-card');
+  let   current  = 0;
+  let   autoPlay = null;
+  const CARD_W   = 360; // card + gap
+
+  function goTo(idx) {
+    const max = cards.length - Math.floor(track.parentElement.offsetWidth / CARD_W);
+    current = Math.max(0, Math.min(idx, Math.max(0, cards.length - 1)));
+    const safeMax = Math.max(0, cards.length - Math.floor(track.parentElement.offsetWidth / CARD_W));
+    current = Math.min(current, safeMax);
+    track.style.transform = `translateX(-${current * CARD_W}px)`;
+  }
+
+  document.getElementById('nextBtn').addEventListener('click', () => goTo(current + 1));
+  document.getElementById('prevBtn').addEventListener('click', () => goTo(current - 1));
+
+  function startAuto() {
+    autoPlay = setInterval(() => {
+      const safeMax = Math.max(0, cards.length - Math.floor(track.parentElement.offsetWidth / CARD_W));
+      goTo(current >= safeMax ? 0 : current + 1);
+    }, 4000);
+  }
+
+  track.addEventListener('mouseenter', () => clearInterval(autoPlay));
+  track.addEventListener('mouseleave', startAuto);
+  startAuto();
+
+  /* ---- Intersection Observer (scroll reveals) ---------------- */
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  /* ---- Smooth scroll for all anchors ------------------------- */
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+})();
+</script>
+</body>
+</html>
